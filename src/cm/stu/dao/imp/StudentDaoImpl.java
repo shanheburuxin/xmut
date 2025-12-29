@@ -52,20 +52,33 @@ public class StudentDaoImpl implements StudentDao {
 
     @Override
     public void doAnswer(String userAccount, String taskAccount, String answer, String fileName) {
-        // 由于数据库中可能缺少 uploadFileName 字段，需要根据实际情况决定是否更新
+        // 先尝试更新 uploadFileName 字段，如果失败则不更新该字段
         String sql;
         if (fileName != null && !fileName.isEmpty()) {
-            sql = "UPDATE studenttask SET studentAnswer='" + answer + "', isFinish=1 WHERE taskAccount='" + taskAccount + "' AND studentAccount = '" + userAccount + "'";
+            sql = "UPDATE studenttask SET studentAnswer='" + answer + "', uploadFileName='" + fileName + "', isFinish=1 WHERE taskAccount='" + taskAccount + "' AND studentAccount = '" + userAccount + "'";
         } else {
             sql = "UPDATE studenttask SET studentAnswer='" + answer + "', isFinish=1 WHERE taskAccount='" + taskAccount + "' AND studentAccount = '" + userAccount + "'";
         }
-        Deal.deal(sql);
+        
+        try {
+            Deal.deal(sql);
+        } catch (Exception e) {
+            // 如果 uploadFileName 字段不存在，则不包含该字段
+            sql = "UPDATE studenttask SET studentAnswer='" + answer + "', isFinish=1 WHERE taskAccount='" + taskAccount + "' AND studentAccount = '" + userAccount + "'";
+            Deal.deal(sql);
+        }
     }
 
     @Override
     public void dealFenshu(String taskAccount, String studentAccount, String fenshu) {
-        // 由于数据库中可能缺少 isScore 字段，暂时只更新 isFinish 字段
-        String sql = "UPDATE studenttask SET isFinish=2 WHERE taskAccount='" + taskAccount + "' AND studentAccount = '" + studentAccount + "'";
-        Deal.deal(sql);
+        // 先尝试更新 isScore 字段，如果失败则只更新 isFinish 字段
+        String sql = "UPDATE studenttask SET isScore=" + fenshu + ",isFinish=2 WHERE taskAccount='" + taskAccount + "' AND studentAccount = '" + studentAccount + "'";
+        try {
+            Deal.deal(sql);
+        } catch (Exception e) {
+            // 如果 isScore 字段不存在，则只更新 isFinish 字段
+            sql = "UPDATE studenttask SET isFinish=2 WHERE taskAccount='" + taskAccount + "' AND studentAccount = '" + studentAccount + "'";
+            Deal.deal(sql);
+        }
     }
 }

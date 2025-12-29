@@ -33,8 +33,15 @@ public class TeacherDaoImpl implements TeacherDao {
         String sql ="INSERT INTO task VALUES('"+task.getTaskAccount()+"','"+task.getTeacherAccount()+"','"+task.getTaskDate()+"','"+task.getTaskName()+"')";
         Deal.deal(sql);
 
-        sql= "INSERT INTO studenttask(taskAccount,studentAccount,studentAnswer,isFinish) SELECT'"+task.getTaskAccount()+"',B.C,NULL,0 FROM (SELECT userAccount C FROM userteacher WHERE teacherAccount='"+task.getTeacherAccount()+"')AS B";
-        Deal.deal(sql);
+        // 尝试插入包含 isScore 字段的数据，如果失败则使用不包含该字段的语句
+        try {
+            sql= "INSERT INTO studenttask(taskAccount,studentAccount,studentAnswer,isFinish,isScore) SELECT'"+task.getTaskAccount()+"',B.C,NULL,0,0 FROM (SELECT userAccount C FROM userteacher WHERE teacherAccount='"+task.getTeacherAccount()+"')AS B";
+            Deal.deal(sql);
+        } catch (Exception e) {
+            // 如果 isScore 字段不存在，则使用不包含该字段的语句
+            sql= "INSERT INTO studenttask(taskAccount,studentAccount,studentAnswer,isFinish) SELECT'"+task.getTaskAccount()+"',B.C,NULL,0 FROM (SELECT userAccount C FROM userteacher WHERE teacherAccount='"+task.getTeacherAccount()+"')AS B";
+            Deal.deal(sql);
+        }
     }
 
     @Override
