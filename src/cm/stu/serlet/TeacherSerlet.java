@@ -42,10 +42,30 @@ public class TeacherSerlet extends HttpServlet {
             req.setAttribute("arr",arr);
             req.setAttribute("mainRight","person.jsp");
             req.getRequestDispatcher("main.jsp").forward(req,resp);
-        }else if(action.equals("goMyTask")||action.equals("deleteThisTask")){
+        }else if(action.equals("goMyTask")||action.equals("deleteThisTask")||action.equals("batchDeleteTask")||action.equals("batchDeleteStudentTask")){
             if(action.equals("deleteThisTask")){
                 String taskAccount = req.getParameter("taskAccount");
                 ts.deleteThisTask(taskAccount);
+            } else if(action.equals("batchDeleteTask")) {
+                // 批量删除任务
+                String[] taskAccounts = req.getParameterValues("taskAccounts");
+                if(taskAccounts != null) {
+                    for(String taskAccount : taskAccounts) {
+                        ts.deleteThisTask(taskAccount);
+                    }
+                    req.setAttribute("tip", "批量删除成功");
+                }
+            } else if(action.equals("batchDeleteStudentTask")) {
+                // 批量删除学生任务记录
+                String[] taskAccounts = req.getParameterValues("taskAccounts");
+                String[] studentAccounts = req.getParameterValues("studentAccounts");
+                
+                if(taskAccounts != null && studentAccounts != null) {
+                    for(int i = 0; i < taskAccounts.length && i < studentAccounts.length; i++) {
+                        ts.deleteTask(taskAccounts[i], studentAccounts[i], "0"); // isFinish参数，这里使用0作为默认值
+                    }
+                    req.setAttribute("tip", "批量删除成功");
+                }
             }
             
             // 获取分页参数

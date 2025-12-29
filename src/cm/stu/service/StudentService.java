@@ -25,6 +25,8 @@ public interface StudentService {
     PageBean<StudentAnswer> goMyTeaTaskByPage(String userAccount, String teacherAccount, int currentPage, int pageSize);
 
     void deleteMyTeacher(String userAccount, String teacherAccount);
+    
+    void batchDeleteMyTeacher(String[] teacherAccounts, String userAccount);
 
     void doAnswer(String userAccount, String taskAccount, String answer, String fileName);
 

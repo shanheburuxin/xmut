@@ -15,7 +15,7 @@ public class TeacherServiceImpl implements TeacherService {
     public List AllStundentsByTeacherAccount(String userAccount) {
         return td.AllStundentsByTeacherAccount(userAccount);
     }
-
+    
     @Override
     public List<Task> getAllMyTask(String userAccount) {
         return td.getAllMyTask(userAccount);
@@ -79,6 +79,24 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public void deleteThisPersonByTeacher(String studentAccount, String userAccount) {
         td.deleteThisPersonByTeacher(studentAccount,userAccount);
+    }
+    
+    @Override
+    public void batchDeleteTask(String[] taskAccounts) {
+        if (taskAccounts != null) {
+            for (String taskAccount : taskAccounts) {
+                td.deleteThisTask(taskAccount);
+            }
+        }
+    }
+    
+    @Override
+    public void batchDeleteStudentTask(String[] taskAccounts, String[] studentAccounts) {
+        if (taskAccounts != null && studentAccounts != null) {
+            for (int i = 0; i < taskAccounts.length && i < studentAccounts.length; i++) {
+                td.deleteTask(taskAccounts[i], studentAccounts[i], "0");
+            }
+        }
     }
 
 

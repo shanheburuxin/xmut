@@ -115,6 +115,15 @@ public class StudentServicempl implements StudentService {
     public void deleteMyTeacher(String userAccount, String teacherAccount) {
         sd.deleteMyTeacher(userAccount, teacherAccount);
     }
+    
+    @Override
+    public void batchDeleteMyTeacher(String[] teacherAccounts, String userAccount) {
+        if (teacherAccounts != null) {
+            for (String teacherAccount : teacherAccounts) {
+                sd.deleteMyTeacher(userAccount, teacherAccount);
+            }
+        }
+    }
 
     @Override
     public void doAnswer(String userAccount, String taskAccount, String answer, String fileName) {

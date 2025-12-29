@@ -24,6 +24,18 @@
             <h5 class="mb-0 text-primary"><i class="bi bi-list-task"></i> 任务列表</h5>
         </div>
         <div class="card-body p-0">
+            <div class="d-flex justify-content-between mb-3 px-3 pt-3">
+                <div>
+                    <c:if test="${session_person.getUserIdentify()==1}">
+                        <button class="btn btn-danger" onclick="batchDelete()" id="batchDeleteBtn" disabled>
+                            <i class="bi bi-trash"></i> 批量删除
+                        </button>
+                    </c:if>
+                </div>
+                <div>
+                    <span id="selectedCount">已选择 0 项</span>
+                </div>
+            </div>
             <div class="table-responsive">
                 <table class="table table-striped table-hover align-middle text-center mb-0">
                     <thead class="table-primary">
@@ -52,7 +64,7 @@
                     <c:forEach items="${arr}" var="stuTask">
                         <tr>
                             <td>
-                                <input type="checkbox" class="task-checkbox" value="${stuTask.taskAccount}">
+                                <input type="checkbox" class="task-checkbox" value="${stuTask.taskAccount},${stuTask.studentAccount}" onchange="updateSelectedCount()">
                             </td>
                             <c:if test="${session_person.getUserIdentify()!=0}">
                                 <td>${stuTask.getUserName()}</td>
@@ -224,6 +236,9 @@
         checkboxes.forEach(checkbox => {
             checkbox.checked = selectAllCheckbox.checked;
         });
+        
+        // 更新选中计数和按钮状态
+        updateSelectedCount();
     }
     
     // 监听单个复选框变化，更新全选状态
@@ -240,6 +255,9 @@
             // 更新全选复选框状态
             selectAllCheckbox.checked = allChecked;
             selectAllCheckbox.indeterminate = !allChecked && anyChecked; // 半选状态
+            
+            // 更新选中计数和按钮状态
+            updateSelectedCount();
         });
     });
     
@@ -247,6 +265,53 @@
     function changePageSize() {
         const pageSize = document.getElementById('pageSize').value;
         window.location.href = 'student.action?action=goMyTeaTask&teacherAccount=${param.teacherAccount}&pageSize=' + pageSize;
+    }
+    
+    // 更新选中计数和按钮状态
+    function updateSelectedCount() {
+        const selectedCheckboxes = document.querySelectorAll('.task-checkbox:checked');
+        const count = selectedCheckboxes.length;
+        document.getElementById('selectedCount').textContent = '已选择 ' + count + ' 项';
+        const batchDeleteBtn = document.getElementById('batchDeleteBtn');
+        if (batchDeleteBtn) {
+            batchDeleteBtn.disabled = count === 0;
+        }
+    }
+    
+    // 批量删除功能
+    function batchDelete() {
+        const selectedCheckboxes = document.querySelectorAll('.task-checkbox:checked');
+        if (selectedCheckboxes.length === 0) {
+            alert('请先选择要删除的任务');
+            return;
+        }
+        
+        if (confirm(`确定要删除选中的 ${selectedCheckboxes.length} 个任务记录吗？`)) {
+            const taskData = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
+            
+            // 创建一个临时表单来提交批量删除请求
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'tea.action?action=batchDeleteStudentTask';
+            
+            taskData.forEach(data => {
+                const [taskAccount, studentAccount] = data.split(',');
+                const taskInput = document.createElement('input');
+                taskInput.type = 'hidden';
+                taskInput.name = 'taskAccounts';
+                taskInput.value = taskAccount;
+                form.appendChild(taskInput);
+                
+                const studentInput = document.createElement('input');
+                studentInput.type = 'hidden';
+                studentInput.name = 'studentAccounts';
+                studentInput.value = studentAccount;
+                form.appendChild(studentInput);
+            });
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
     }
 </script>
 </body>

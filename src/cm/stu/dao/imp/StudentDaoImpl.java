@@ -67,6 +67,11 @@ public class StudentDaoImpl implements StudentDao {
     }
 
     @Override
+    public void batchDeleteMyTeacher(String[] teacherAccounts, String userAccount) {
+
+    }
+
+    @Override
     public void doAnswer(String userAccount, String taskAccount, String answer, String fileName) {
         // 先尝试更新 uploadFileName 字段，如果失败则不更新该字段
         String sql;

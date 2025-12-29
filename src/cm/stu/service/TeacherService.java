@@ -27,4 +27,8 @@ public interface TeacherService {
     void deleteThisTask(String taskAccount);
 
     void deleteThisPersonByTeacher(String studentAccount, String userAccount);
+    
+    void batchDeleteTask(String[] taskAccounts);
+    
+    void batchDeleteStudentTask(String[] taskAccounts, String[] studentAccounts);
 }

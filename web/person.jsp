@@ -49,6 +49,19 @@
         </div>
     </div>
 
+    <div class="d-flex justify-content-between mb-3">
+        <div>
+            <c:if test="${session_person.getUserIdentify()==2}">
+                <button class="btn btn-danger" onclick="batchDelete()" id="batchDeleteBtn" disabled>
+                    <i class="bi bi-trash"></i> 批量删除
+                </button>
+            </c:if>
+        </div>
+        <div>
+            <span id="selectedCount">已选择 0 项</span>
+        </div>
+    </div>
+
     <div class="table-responsive">
         <table class="table table-striped table-hover table-bordered align-middle text-center">
             <thead class="table-dark">
@@ -75,7 +88,7 @@
             <c:forEach items="${arr}" var="person">
                 <tr>
                     <td>
-                        <input type="checkbox" class="person-checkbox" value="${person.userAccount}">
+                        <input type="checkbox" class="person-checkbox" value="${person.userAccount},${person.userIdentify}" onchange="updateSelectedCount()">
                     </td>
                     <td>${person.getUserAccount()}</td>
                     <td>${person.getUserName()}</td>
@@ -247,6 +260,9 @@
         checkboxes.forEach(checkbox => {
             checkbox.checked = selectAllCheckbox.checked;
         });
+        
+        // 更新选中计数和按钮状态
+        updateSelectedCount();
     }
     
     // 监听单个复选框变化，更新全选状态
@@ -263,6 +279,9 @@
             // 更新全选复选框状态
             selectAllCheckbox.checked = allChecked;
             selectAllCheckbox.indeterminate = !allChecked && anyChecked; // 半选状态
+            
+            // 更新选中计数和按钮状态
+            updateSelectedCount();
         });
     });
     
@@ -277,6 +296,53 @@
             window.location.href = 'tea.action?action=list&pageSize=' + pageSize;
         } else {
             window.location.href = 'man.action?action=list&pageSize=' + pageSize;
+        }
+    }
+    
+    // 更新选中计数和按钮状态
+    function updateSelectedCount() {
+        const selectedCheckboxes = document.querySelectorAll('.person-checkbox:checked');
+        const count = selectedCheckboxes.length;
+        document.getElementById('selectedCount').textContent = '已选择 ' + count + ' 项';
+        const batchDeleteBtn = document.getElementById('batchDeleteBtn');
+        if (batchDeleteBtn) {
+            batchDeleteBtn.disabled = count === 0;
+        }
+    }
+    
+    // 批量删除功能
+    function batchDelete() {
+        const selectedCheckboxes = document.querySelectorAll('.person-checkbox:checked');
+        if (selectedCheckboxes.length === 0) {
+            alert('请先选择要删除的用户');
+            return;
+        }
+        
+        if (confirm(`确定要删除选中的 ${selectedCheckboxes.length} 个用户吗？`)) {
+            const userData = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
+            
+            // 创建一个临时表单来提交批量删除请求
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'man.action?action=batchDeletePerson';
+            
+            userData.forEach(data => {
+                const [userAccount, userIdentify] = data.split(',');
+                const accountInput = document.createElement('input');
+                accountInput.type = 'hidden';
+                accountInput.name = 'userAccounts';
+                accountInput.value = userAccount;
+                form.appendChild(accountInput);
+                
+                const identifyInput = document.createElement('input');
+                identifyInput.type = 'hidden';
+                identifyInput.name = 'userIdentifies';
+                identifyInput.value = userIdentify;
+                form.appendChild(identifyInput);
+            });
+            
+            document.body.appendChild(form);
+            form.submit();
         }
     }
 </script>

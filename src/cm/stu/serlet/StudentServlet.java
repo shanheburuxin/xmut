@@ -41,7 +41,7 @@ public class StudentServlet extends HttpServlet {
         Person person = (Person) req.getSession().getAttribute("session_person");
         String userAccount = person.getUserAccount();
 
-        if (action.equals("list") || action.equals("searchTeacher")) {
+        if (action.equals("list") || action.equals("searchTeacher") || action.equals("batchDeleteMyTeacher")) {
             // 获取分页参数
             String currentPageStr = req.getParameter("currentPage");
             String pageSizeStr = req.getParameter("pageSize");
@@ -68,6 +68,19 @@ public class StudentServlet extends HttpServlet {
             List<Person> arr;
             if (action.equals("list")) {
                 PageBean<Person> pageBean = ss.getAllTeacherByPage(userAccount, currentPage, pageSize);
+                req.setAttribute("pageBean", pageBean);
+                arr = pageBean.getDataList();
+            } else if (action.equals("batchDeleteMyTeacher")) {
+                // 批量删除我的老师
+                String[] teacherAccounts = req.getParameterValues("teacherAccounts");
+                if(teacherAccounts != null) {
+                    for(String teacherAccount : teacherAccounts) {
+                        ss.deleteMyTeacher(userAccount, teacherAccount);
+                    }
+                    req.setAttribute("tip", "批量删除成功");
+                }
+                
+                PageBean<Person> pageBean = ss.getMyTeacherByPage(userAccount, currentPage, pageSize);
                 req.setAttribute("pageBean", pageBean);
                 arr = pageBean.getDataList();
             } else {
