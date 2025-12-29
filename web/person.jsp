@@ -5,6 +5,17 @@
     <title>人员列表</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .pagination-info {
+            margin-right: 15px;
+        }
+    </style>
 </head>
 <body>
 <div class="container-fluid">
@@ -42,6 +53,9 @@
         <table class="table table-striped table-hover table-bordered align-middle text-center">
             <thead class="table-dark">
             <tr>
+                <th>
+                    <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
+                </th>
                 <th>账户</th>
                 <th>姓名</th>
                 <th>性别</th>
@@ -60,6 +74,9 @@
             <tbody>
             <c:forEach items="${arr}" var="person">
                 <tr>
+                    <td>
+                        <input type="checkbox" class="person-checkbox" value="${person.userAccount}">
+                    </td>
                     <td>${person.getUserAccount()}</td>
                     <td>${person.getUserName()}</td>
                     <td><span class="badge ${person.getUserSex()=='男'?'bg-info':'bg-danger'}">${person.getUserSex()}</span></td>
@@ -107,6 +124,101 @@
             </tbody>
         </table>
     </div>
+    
+    <!-- 分页控件 -->
+    <c:if test="${pageBean != null}">
+        <div class="pagination-container">
+            <div class="pagination-info">
+                共 ${pageBean.totalCount} 条记录，第 ${pageBean.currentPage} / ${pageBean.totalPage} 页
+            </div>
+            <nav>
+                <ul class="pagination">
+                    <c:choose>
+                        <c:when test="${pageBean.currentPage == 1}">
+                            <li class="page-item disabled"><a class="page-link" href="javascript:void(0)">首页</a></li>
+                            <li class="page-item disabled"><a class="page-link" href="javascript:void(0)">上一页</a></li>
+                        </c:when>
+                        <c:otherwise>
+                            <c:choose>
+                                <c:when test="${session_person.getUserIdentify()==0}">
+                                    <li class="page-item"><a class="page-link" href="student.action?action=list&currentPage=1">首页</a></li>
+                                    <li class="page-item"><a class="page-link" href="student.action?action=list&currentPage=${pageBean.currentPage - 1}">上一页</a></li>
+                                </c:when>
+                                <c:when test="${session_person.getUserIdentify()==1}">
+                                    <li class="page-item"><a class="page-link" href="tea.action?action=list&currentPage=1">首页</a></li>
+                                    <li class="page-item"><a class="page-link" href="tea.action?action=list&currentPage=${pageBean.currentPage - 1}">上一页</a></li>
+                                </c:when>
+                                <c:otherwise>
+                                    <li class="page-item"><a class="page-link" href="man.action?action=list&currentPage=1">首页</a></li>
+                                    <li class="page-item"><a class="page-link" href="man.action?action=list&currentPage=${pageBean.currentPage - 1}">上一页</a></li>
+                                </c:otherwise>
+                            </c:choose>
+                        </c:otherwise>
+                    </c:choose>
+                    
+                    <!-- 显示当前页码附近的页码 -->
+                    <c:forEach begin="${pageBean.currentPage > 2 ? pageBean.currentPage - 2 : 1}" 
+                               end="${pageBean.currentPage + 2 <= pageBean.totalPage ? pageBean.currentPage + 2 : pageBean.totalPage}" 
+                               var="i">
+                        <c:choose>
+                            <c:when test="${i == pageBean.currentPage}">
+                                <li class="page-item active"><a class="page-link" href="javascript:void(0)">${i}</a></li>
+                            </c:when>
+                            <c:otherwise>
+                                <c:choose>
+                                    <c:when test="${session_person.getUserIdentify()==0}">
+                                        <li class="page-item"><a class="page-link" href="student.action?action=list&currentPage=${i}">${i}</a></li>
+                                    </c:when>
+                                    <c:when test="${session_person.getUserIdentify()==1}">
+                                        <li class="page-item"><a class="page-link" href="tea.action?action=list&currentPage=${i}">${i}</a></li>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <li class="page-item"><a class="page-link" href="man.action?action=list&currentPage=${i}">${i}</a></li>
+                                    </c:otherwise>
+                                </c:choose>
+                            </c:otherwise>
+                        </c:choose>
+                    </c:forEach>
+                    
+                    <c:choose>
+                        <c:when test="${pageBean.currentPage == pageBean.totalPage}">
+                            <li class="page-item disabled"><a class="page-link" href="javascript:void(0)">下一页</a></li>
+                            <li class="page-item disabled"><a class="page-link" href="javascript:void(0)">末页</a></li>
+                        </c:when>
+                        <c:otherwise>
+                            <c:choose>
+                                <c:when test="${session_person.getUserIdentify()==0}">
+                                    <li class="page-item"><a class="page-link" href="student.action?action=list&currentPage=${pageBean.currentPage + 1}">下一页</a></li>
+                                    <li class="page-item"><a class="page-link" href="student.action?action=list&currentPage=${pageBean.totalPage}">末页</a></li>
+                                </c:when>
+                                <c:when test="${session_person.getUserIdentify()==1}">
+                                    <li class="page-item"><a class="page-link" href="tea.action?action=list&currentPage=${pageBean.currentPage + 1}">下一页</a></li>
+                                    <li class="page-item"><a class="page-link" href="tea.action?action=list&currentPage=${pageBean.totalPage}">末页</a></li>
+                                </c:when>
+                                <c:otherwise>
+                                    <li class="page-item"><a class="page-link" href="man.action?action=list&currentPage=${pageBean.currentPage + 1}">下一页</a></li>
+                                    <li class="page-item"><a class="page-link" href="man.action?action=list&currentPage=${pageBean.totalPage}">末页</a></li>
+                                </c:otherwise>
+                            </c:choose>
+                        </c:otherwise>
+                    </c:choose>
+                </ul>
+            </nav>
+        </div>
+        
+        <!-- 每页显示条数选择 -->
+        <div class="d-flex justify-content-center mt-3">
+            <div class="me-3">
+                <label for="pageSize">每页显示：</label>
+                <select id="pageSize" class="form-select d-inline-block w-auto" onchange="changePageSize()">
+                    <option value="5" ${pageBean.pageSize == 5 ? 'selected' : ''}>5条</option>
+                    <option value="10" ${pageBean.pageSize == 10 ? 'selected' : ''}>10条</option>
+                    <option value="20" ${pageBean.pageSize == 20 ? 'selected' : ''}>20条</option>
+                    <option value="50" ${pageBean.pageSize == 50 ? 'selected' : ''}>50条</option>
+                </select>
+            </div>
+        </div>
+    </c:if>
 </div>
 
 <script>
@@ -124,6 +236,47 @@
     function deleteThisPersonByTeacher(studentAccount){
         if(confirm('确定要移除该学生吗？')){
             window.location.href="tea.action?action=deleteThisPersonByTeacher&studentAccount="+studentAccount;
+        }
+    }
+    
+    // 全选/反选功能
+    function toggleSelectAll() {
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.person-checkbox');
+        
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
+    }
+    
+    // 监听单个复选框变化，更新全选状态
+    document.querySelectorAll('.person-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const allCheckboxes = document.querySelectorAll('.person-checkbox');
+            const selectAllCheckbox = document.getElementById('selectAll');
+            
+            // 检查是否所有人员复选框都被选中
+            const allChecked = Array.from(allCheckboxes).every(cb => cb.checked);
+            // 检查是否有任何人员复选框被选中
+            const anyChecked = Array.from(allCheckboxes).some(cb => cb.checked);
+            
+            // 更新全选复选框状态
+            selectAllCheckbox.checked = allChecked;
+            selectAllCheckbox.indeterminate = !allChecked && anyChecked; // 半选状态
+        });
+    });
+    
+    // 改变每页显示条数
+    function changePageSize() {
+        const pageSize = document.getElementById('pageSize').value;
+        const userIdentify = ${session_person.getUserIdentify()};
+        
+        if (userIdentify == 0) {
+            window.location.href = 'student.action?action=list&pageSize=' + pageSize;
+        } else if (userIdentify == 1) {
+            window.location.href = 'tea.action?action=list&pageSize=' + pageSize;
+        } else {
+            window.location.href = 'man.action?action=list&pageSize=' + pageSize;
         }
     }
 </script>

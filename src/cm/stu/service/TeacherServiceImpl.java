@@ -1,5 +1,6 @@
 package cm.stu.service;
 
+import cm.stu.bean.PageBean;
 import cm.stu.bean.StudentAnswer;
 import cm.stu.bean.Task;
 import cm.stu.dao.TeacherDao;
@@ -18,6 +19,31 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public List<Task> getAllMyTask(String userAccount) {
         return td.getAllMyTask(userAccount);
+    }
+    
+    @Override
+    public PageBean<Task> getAllMyTaskByPage(String userAccount, int currentPage, int pageSize) {
+        // 获取所有任务数据
+        List<Task> allTasks = td.getAllMyTask(userAccount);
+        
+        // 创建分页对象
+        PageBean<Task> pageBean = new PageBean<>();
+        pageBean.setCurrentPage(currentPage);
+        pageBean.setPageSize(pageSize);
+        pageBean.setTotalCount(allTasks.size());
+        
+        // 计算起始索引
+        int startIndex = (currentPage - 1) * pageSize;
+        if (startIndex < 0) startIndex = 0;
+        
+        // 计算结束索引
+        int endIndex = Math.min(startIndex + pageSize, allTasks.size());
+        
+        // 截取当前页数据
+        List<Task> pageData = allTasks.subList(startIndex, endIndex);
+        pageBean.setDataList(pageData);
+        
+        return pageBean;
     }
 
     @Override

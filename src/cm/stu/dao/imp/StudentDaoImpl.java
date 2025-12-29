@@ -1,5 +1,6 @@
 package cm.stu.dao.imp;
 
+import cm.stu.bean.PageBean;
 import cm.stu.bean.Person;
 import cm.stu.bean.StudentAnswer;
 import cm.stu.dao.Deal;
@@ -16,6 +17,11 @@ public class StudentDaoImpl implements StudentDao {
     }
 
     @Override
+    public PageBean<Person> getAllTeacherByPage(String userAccount, int currentPage, int pageSize) {
+        return null;
+    }
+
+    @Override
     public List<Person> getSearchTeacher(String matchText) {
         String sql = "SELECT * FROM person WHERE userIdentify=1 AND (userAccount='" + matchText + "' OR userName LIKE'%" + matchText + "%' OR userOtherName LIKE'%" + matchText + "%')";
         return Deal.getAllPerson(sql);
@@ -25,6 +31,11 @@ public class StudentDaoImpl implements StudentDao {
     public List<Person> getMyTeacher(String userAccount) {
         String sql = "SELECT * FROM person WHERE userAccount IN (SELECT teacherAccount AS userAccount FROM userteacher ut WHERE userAccount = '" + userAccount + "')";
         return Deal.getAllPerson(sql);
+    }
+
+    @Override
+    public PageBean<Person> getMyTeacherByPage(String userAccount, int currentPage, int pageSize) {
+        return null;
     }
 
     @Override
@@ -40,6 +51,11 @@ public class StudentDaoImpl implements StudentDao {
     public List<StudentAnswer> goMyTeaTask(String userAccount, String teacherAccount) {
         String sql = "SELECT s.*,p.userName,taskName FROM studenttask s INNER JOIN person p ON s.studentAccount=p.userAccount INNER JOIN task t ON s.taskAccount = t.taskAccount WHERE(s.studentAccount='" + userAccount + "' AND t.teacherAccount ='" + teacherAccount + "')";
         return Deal.getTaskDetail(sql);
+    }
+
+    @Override
+    public PageBean<StudentAnswer> goMyTeaTaskByPage(String userAccount, String teacherAccount, int currentPage, int pageSize) {
+        return null;
     }
 
     @Override

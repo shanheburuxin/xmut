@@ -1,5 +1,6 @@
 package cm.stu.serlet;
 
+import cm.stu.bean.PageBean;
 import cm.stu.bean.Person;
 import cm.stu.bean.StudentAnswer;
 import cm.stu.bean.Task;
@@ -41,9 +42,34 @@ public class StudentServlet extends HttpServlet {
         String userAccount = person.getUserAccount();
 
         if (action.equals("list") || action.equals("searchTeacher")) {
+            // 获取分页参数
+            String currentPageStr = req.getParameter("currentPage");
+            String pageSizeStr = req.getParameter("pageSize");
+            
+            int currentPage = 1;
+            int pageSize = 10; // 默认每页10条记录
+            
+            if (currentPageStr != null && !currentPageStr.isEmpty()) {
+                try {
+                    currentPage = Integer.parseInt(currentPageStr);
+                } catch (NumberFormatException e) {
+                    currentPage = 1;
+                }
+            }
+            
+            if (pageSizeStr != null && !pageSizeStr.isEmpty()) {
+                try {
+                    pageSize = Integer.parseInt(pageSizeStr);
+                } catch (NumberFormatException e) {
+                    pageSize = 10;
+                }
+            }
+            
             List<Person> arr;
             if (action.equals("list")) {
-                arr = ss.getAllTeacher();
+                PageBean<Person> pageBean = ss.getAllTeacherByPage(userAccount, currentPage, pageSize);
+                req.setAttribute("pageBean", pageBean);
+                arr = pageBean.getDataList();
             } else {
                 String matchText = req.getParameter("matchText");
                 arr = ss.getSearchTeacher(matchText);
@@ -56,7 +82,34 @@ public class StudentServlet extends HttpServlet {
                 String teacherAccount = req.getParameter("teacherAccount");
                 ss.deleteMyTeacher(userAccount, teacherAccount);
             }
-            List<Person> arr = ss.getMyTeacher(userAccount);
+            
+            // 获取分页参数
+            String currentPageStr = req.getParameter("currentPage");
+            String pageSizeStr = req.getParameter("pageSize");
+            
+            int currentPage = 1;
+            int pageSize = 10; // 默认每页10条记录
+            
+            if (currentPageStr != null && !currentPageStr.isEmpty()) {
+                try {
+                    currentPage = Integer.parseInt(currentPageStr);
+                } catch (NumberFormatException e) {
+                    currentPage = 1;
+                }
+            }
+            
+            if (pageSizeStr != null && !pageSizeStr.isEmpty()) {
+                try {
+                    pageSize = Integer.parseInt(pageSizeStr);
+                } catch (NumberFormatException e) {
+                    pageSize = 10;
+                }
+            }
+            
+            PageBean<Person> pageBean = ss.getMyTeacherByPage(userAccount, currentPage, pageSize);
+            req.setAttribute("pageBean", pageBean);
+            
+            List<Person> arr = pageBean.getDataList();
             req.setAttribute("arr", arr);
             req.setAttribute("mainRight", "myTeacher.jsp");
             req.getRequestDispatcher("main.jsp").forward(req, resp);
@@ -73,7 +126,34 @@ public class StudentServlet extends HttpServlet {
             req.getRequestDispatcher("main.jsp").forward(req, resp);
         } else if (action.equals("goMyTeaTask")) {
             String teacherAccount = req.getParameter("teacherAccount");
-            List<StudentAnswer> arr = ss.goMyTeaTask(userAccount, teacherAccount);
+            
+            // 获取分页参数
+            String currentPageStr = req.getParameter("currentPage");
+            String pageSizeStr = req.getParameter("pageSize");
+            
+            int currentPage = 1;
+            int pageSize = 10; // 默认每页10条记录
+            
+            if (currentPageStr != null && !currentPageStr.isEmpty()) {
+                try {
+                    currentPage = Integer.parseInt(currentPageStr);
+                } catch (NumberFormatException e) {
+                    currentPage = 1;
+                }
+            }
+            
+            if (pageSizeStr != null && !pageSizeStr.isEmpty()) {
+                try {
+                    pageSize = Integer.parseInt(pageSizeStr);
+                } catch (NumberFormatException e) {
+                    pageSize = 10;
+                }
+            }
+            
+            PageBean<StudentAnswer> pageBean = ss.goMyTeaTaskByPage(userAccount, teacherAccount, currentPage, pageSize);
+            req.setAttribute("pageBean", pageBean);
+            
+            List<StudentAnswer> arr = pageBean.getDataList();
             req.setAttribute("arr", arr);
             req.setAttribute("mainRight", "studentTask.jsp");
             req.getRequestDispatcher("main.jsp").forward(req, resp);

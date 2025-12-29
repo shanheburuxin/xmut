@@ -1,5 +1,6 @@
 package cm.stu.serlet;
 
+import cm.stu.bean.PageBean;
 import cm.stu.bean.Person;
 import cm.stu.bean.StudentAnswer;
 import cm.stu.bean.Task;
@@ -46,11 +47,34 @@ public class TeacherSerlet extends HttpServlet {
                 String taskAccount = req.getParameter("taskAccount");
                 ts.deleteThisTask(taskAccount);
             }
-
-
-
-            List<Task> arr = ts.getAllMyTask(userAccount);
-            req.setAttribute("arr",arr);
+            
+            // 获取分页参数
+            String currentPageStr = req.getParameter("currentPage");
+            String pageSizeStr = req.getParameter("pageSize");
+            
+            int currentPage = 1;
+            int pageSize = 10; // 默认每页10条记录
+            
+            if (currentPageStr != null && !currentPageStr.isEmpty()) {
+                try {
+                    currentPage = Integer.parseInt(currentPageStr);
+                } catch (NumberFormatException e) {
+                    currentPage = 1;
+                }
+            }
+            
+            if (pageSizeStr != null && !pageSizeStr.isEmpty()) {
+                try {
+                    pageSize = Integer.parseInt(pageSizeStr);
+                } catch (NumberFormatException e) {
+                    pageSize = 10;
+                }
+            }
+            
+            // 获取分页数据
+            PageBean<Task> pageBean = ts.getAllMyTaskByPage(userAccount, currentPage, pageSize);
+            
+            req.setAttribute("pageBean", pageBean);
             req.setAttribute("mainRight","task.jsp");
             req.getRequestDispatcher("main.jsp").forward(req,resp);
         }

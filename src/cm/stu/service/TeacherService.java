@@ -1,5 +1,6 @@
 package cm.stu.service;
 
+import cm.stu.bean.PageBean;
 import cm.stu.bean.StudentAnswer;
 import cm.stu.bean.Task;
 
@@ -9,6 +10,8 @@ public interface TeacherService {
     List AllStundentsByTeacherAccount(String userAccount);
 
     List<Task> getAllMyTask(String userAccount);
+    
+    PageBean<Task> getAllMyTaskByPage(String userAccount, int currentPage, int pageSize);
 
     List<StudentAnswer> getTaskdetail(String taskAccount);
 
